@@ -33,6 +33,7 @@ struct Portas {
   byte sensorLuz;
   byte sensorTemperatura;
   byte sensorDistancia;
+  byte speaker;
 };
 
 class DevBot {
@@ -48,6 +49,7 @@ public:
   Modo modos[5];
   Motores motores;
   Portas portas;
+  byte modoMudou;
   void iniciar();
   void configurar(Bateria bateria);
   void configurar(Motor motor);
@@ -55,6 +57,8 @@ public:
   void configurar(Sensor sensor);
   void esperar(long);
   void loop();
+  void beep(int);
+  byte mudouModo();
   void checarMudancaModo();
   void modo(int numeroModo, void(*modo)());
   long sensorDistancia();

@@ -5,15 +5,18 @@
 #include "HardwareSerial.h"
 
 DevBot robot;
-long lastDebounce=0;
-long debounceDelay=100;
+volatile long lastDebounce=0;
+volatile long debounceDelay=50;
+volatile long ntime=0;
 
 void mudarModoPeloBotao() {
 
-  if(millis()-lastDebounce>debounceDelay) {
+  if(millis()-lastDebounce>debounceDelay && ntime++>=100) {
+  //if(lastDebounce>debounceDelay) {
     robot.ultimoModo=robot.modoAtual;
     robot.modoAtual = robot.modoAtual==robot.contadorModos-1 ? 0 : robot.modoAtual + 1;
-    robot.motores.parar();
+    //robot.motores.parar();
+    ntime=0;
     lastDebounce=millis();
   }
 }
@@ -22,7 +25,7 @@ long DevBot::sensorLuz() {
 }
 long DevBot::sensorTemperatura() {
   return analogRead(2);
-}
+}      
 void DevBot::mudarServo(int posicao) {
   /*servo.attach(5);
   delay(50);
@@ -39,17 +42,32 @@ DevBot::DevBot() {
 }
 void DevBot::iniciar() {
    attachInterrupt(0, mudarModoPeloBotao, LOW);
+   /* welcome devbot code */
    Serial.begin(115200);
+   pinMode(4, OUTPUT);
 }
 
 void DevBot::loop() { 
   if(ultimoModo!=modoAtual) {
+    robot.motores.parar();
     ultimoModo = modoAtual;
+    beep(modoAtual+1);
+    modoMudou=1;
     modos[modoAtual].configurar();
   }
   modos[modoAtual].executar();
+  modoMudou=0;
 }
 
+void DevBot::beep(int ntime) {
+  for(int x=0;x<ntime;x++) {
+    digitalWrite(4, HIGH);
+    delay(100);
+    digitalWrite(4, LOW);
+    delay(100);
+  }
+
+}
 void DevBot::modo(int numeroModo, void(*modo1)()) {
   Modo novoModo(modo1);
   modos[numeroModo]=novoModo;
@@ -75,20 +93,28 @@ void DevBot::checarMudancaModo() {
 }
 
 void DevBot::esperar(long milis) { 
-  if(modoAtual!=ultimoModo) return;
+  modoMudou=0;
+  if(modoAtual!=ultimoModo) {
+    modoMudou=1;
+    return;
+  }
 
-  if(milis<50) delay(milis);
+  if(milis<10) delay(milis);
   else {
-    for(long x=0;x<milis/50;x++) {
-      delay(50);
+    for(long x=0;x<milis/10;x++) {
+      delay(10);
       //checarMudancaModo();
-      if(modoAtual!=ultimoModo) return;
+      if(modoAtual!=ultimoModo) {
+        modoMudou=1;
+        return;
+      }
     }
-    delay(milis%50);
+    delay(milis%10);
   }
 
 }
 
+byte DevBot::mudouModo() { return modoMudou;}
 long DevBot::sensorDistancia() {
   pinMode(portaSensorDistancia, OUTPUT);
   digitalWrite(portaSensorDistancia, LOW);
