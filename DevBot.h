@@ -1,4 +1,5 @@
 #ifndef WIRING_H
+#include <Servo.h>
 #include <Arduino.h>
 #endif
 #include "Modo.h"
@@ -22,6 +23,8 @@ enum Sensor { sensor_distancia_parallax,
               sensor_luz,
               sensor_temperatura};
 
+enum Servo {  servo_comum};
+
 struct Portas {
   byte motor1A;
   byte motor1B;
@@ -32,7 +35,8 @@ struct Portas {
   byte servo;
   byte sensorLuz;
   byte sensorTemperatura;
-  byte sensorDistancia;
+  byte sensorDistancia1;
+  byte sensorDistancia2;
   byte speaker;
 };
 
@@ -41,19 +45,25 @@ class DevBot {
 private:
   
 public:
-  DevBot();
+  Servo servo;
+  Portas portas;
+  Motores motores;
+  Modo modos[5];
+  Placa placa;
+  Servo servo;
+
   int modoAtual;
   int ultimoModo;
   int contadorModos;
-  int portaSensorDistancia;
-  Modo modos[5];
-  Motores motores;
-  Portas portas;
   byte modoMudou;
+
+  DevBot();
   void iniciar();
   void configurar(Bateria bateria);
   void configurar(Motor motor);
   void configurar(Placa placa);
+  void configurar(Portas portas);
+  void configurar(Servo servo);
   void configurar(Sensor sensor);
   void esperar(long);
   void loop();
@@ -61,7 +71,7 @@ public:
   byte mudouModo();
   void checarMudancaModo();
   void modo(int numeroModo, void(*modo)());
-  long sensorDistancia();
+  long sensorDistancia1();
   long sensorLuz();
   long sensorTemperatura();
   void mudarServo(int posicao);
@@ -69,10 +79,10 @@ public:
   void enviar(long);
   void enviar(char);
   void enviar(char*);
+  int recebeuComando(char*);
+  void controleRemoto();
   char* receber();
   int  recebeuDados();
-  //void andar
 };
 
 extern DevBot robot;
-

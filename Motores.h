@@ -13,8 +13,8 @@ class Motores {
     void parar();
     void frente(int intensidade);
     void re(int intensidade);
-    void frenteEsquerda(int intensidade);
-    void frenteDireita(int intensidade);
+    void esquerda(int intensidade);
+    void direita(int intensidade);
     void reEsquerda(int intensidade);
     void reDireita(int intensidade);
     void movimentoAleatorio(int intensidade);

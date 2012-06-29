@@ -5,7 +5,6 @@
 int sentido=0;
 
 Motores::Motores() {
-  configurar(7,8,10,12,13,11);
 }
 
 Motores::Motores(int mm1_a,int mm1_b,int  mm1_pwm,int  mm2_a,int  mm2_b,int  mm2_pwm) {
@@ -78,7 +77,7 @@ void  Motores::re(int intensidade) {
   digitalWrite(m2_b,!sentido);
   interrupts();
 }
-void  Motores::frenteEsquerda(int intensidade) {
+void  Motores::esquerda(int intensidade) {
   noInterrupts();
   analogWrite(m1_pwm,intensidade*50 );
   analogWrite(m2_pwm,10*intensidade);
@@ -89,7 +88,7 @@ void  Motores::frenteEsquerda(int intensidade) {
   interrupts();
 
 }
-void  Motores::frenteDireita(int intensidade) {
+void  Motores::direita(int intensidade) {
   noInterrupts();
   analogWrite(m1_pwm,10*intensidade );
   analogWrite(m2_pwm,intensidade*50);
@@ -129,8 +128,8 @@ void Motores::movimentoAleatorio(int intensidade) {
   int m = random(1,9);
   if(m==1) frente(intensidade);
   if(m==2) re(intensidade);
-  if(m==3) frenteEsquerda(intensidade);
-  if(m==4) frenteDireita(intensidade);
+  if(m==3) esquerda(intensidade);
+  if(m==4) direita(intensidade);
   if(m==5) reEsquerda(intensidade);
   if(m==6) reDireita(intensidade);
   if(m==7) girar(intensidade, 0);
