@@ -23,7 +23,7 @@ enum Sensor { sensor_distancia_parallax,
               sensor_luz,
               sensor_temperatura};
 
-enum Servo {  servo_comum};
+enum Servos {  servo_comum};
 
 struct Portas {
   byte motor1A;
@@ -50,7 +50,8 @@ public:
   Motores motores;
   Modo modos[5];
   Placa placa;
-  Servo servo;
+  Sensor sensor;
+  int temServo;
 
   int modoAtual;
   int ultimoModo;
@@ -63,7 +64,7 @@ public:
   void configurar(Motor motor);
   void configurar(Placa placa);
   void configurar(Portas portas);
-  void configurar(Servo servo);
+  void configurar(Servos servo);
   void configurar(Sensor sensor);
   void esperar(long);
   void loop();

@@ -160,17 +160,20 @@ byte DevBot::mudouModo() { return modoMudou;}
 
 long DevBot::sensorDistancia1() {
   //COLOCAR IF por Tipo de Sensor e no futuro refatorar
-  
-  digitalWrite(portas.sensorDistancia1, LOW);
-  delayMicroseconds(2);
-  digitalWrite(portas.sensorDistancia1, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(portas.sensorDistancia1, LOW);
+  long cm=0;
+  if(sensor==sensor_distancia_parallax) {
+    pinMode(portas.sensorDistancia1, OUTPUT);
 
-  long duration = pulseIn(portas.sensorDistancia1, HIGH);
+    digitalWrite(portas.sensorDistancia1, LOW);
+    delayMicroseconds(2);
+    digitalWrite(portas.sensorDistancia1, HIGH);
+    delayMicroseconds(5);
+    digitalWrite(portas.sensorDistancia1, LOW);
+    pinMode(portas.sensorDistancia1, INPUT);
+    long duration = pulseIn(portas.sensorDistancia1, HIGH);
 
-  long cm = (duration / 29) / 2;
-  //long cm = ((duration * 340)/2)/60;
+    cm = (duration / 29) / 2;
+  }
   return cm;
 }
 
@@ -183,17 +186,18 @@ void DevBot::configurar(Motor b) {
 
 }
 void DevBot::configurar(Placa b) {
+  placa = b;
   if(b==programME_v2) {
     portas.motor1A=7;
     portas.motor1B=8;
-    portas.motor1PWM=(servo==servo_comum ? 3 : 10);
+    portas.motor1PWM=(temServo? 3 : 10);
     portas.motor2A=12;
     portas.motor2B=13;
     portas.motor2PWM=11;
     portas.servo=6;
     portas.sensorLuz=3;
     portas.sensorTemperatura=2;
-    portas.sensorDistancia1=(servo==servo_comum ? 10 : 3);
+    portas.sensorDistancia1=(temServo ? 10 : 3);
     portas.speaker=4;  
     motores.configurar(portas.motor1A,  
                        portas.motor1B,
@@ -213,16 +217,24 @@ void DevBot::configurar(Portas p) {
 	             portas.motor2PWM);
 
 }
-void DevBot::configurar(Sensor sensor) { 
-
+void DevBot::configurar(Sensor sensor1) { 
+  sensor=sensor1;
 }
-void DevBot::configurar(Servo servo) { 
+void DevBot::configurar(Servos servo) { 
+  temServo = 1;
   //se for program-me v2.0
   //vamos trocar as portas do PWM motor1 com a numero 3
   //por conta do problema do timer!
   if(placa==programME_v2) {
     portas.motor1PWM=3;
     portas.sensorDistancia1=10;
+    motores.configurar(portas.motor1A,  
+                     portas.motor1B,
+                     portas.motor1PWM,
+                     portas.motor2A,  
+                     portas.motor2B,
+	             portas.motor2PWM);
+
   }
 }
 
@@ -302,7 +314,7 @@ void DevBot::controleRemoto() {
   }
   else if(strcmp("sd1",command1)==0) {
      Serial.print("d?");
-     Serial.print(robot.sensorDistancia1());
+     Serial.println(robot.sensorDistancia1());
      Serial.flush();
   }
   else if(strcmp("servo",command1)==0) {
