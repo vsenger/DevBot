@@ -80,6 +80,7 @@ public:
   void enviar(long);
   void enviar(char);
   void enviar(char*);
+
   int recebeuComando(char*);
   void controleRemoto();
   char* receber();

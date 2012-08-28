@@ -7,11 +7,12 @@ int sentido=0;
 Motores::Motores() {
 }
 
-Motores::Motores(int mm1_a,int mm1_b,int  mm1_pwm,int  mm2_a,int  mm2_b,int  mm2_pwm) {
-  configurar(mm1_a,mm1_b,mm1_pwm,mm2_a,mm2_b,mm2_pwm);
+Motores::Motores(int ind, int mm1_a,int mm1_b,int  mm1_pwm,int  mm2_a,int  mm2_b,int  mm2_pwm) {
+  configurar(ind, mm1_a,mm1_b,mm1_pwm,mm2_a,mm2_b,mm2_pwm);
 }
 
-void Motores::configurar(int mm1_a,int mm1_b,int  mm1_pwm,int  mm2_a,int  mm2_b,int  mm2_pwm) {
+void Motores::configurar(int independente1, int mm1_a,int mm1_b,int  mm1_pwm,int  mm2_a,int  mm2_b,int  mm2_pwm) {
+  independente=independente1;
   m1_a=mm1_a;
   m1_b=mm1_b;
   m1_pwm=mm1_pwm;
@@ -28,8 +29,8 @@ void Motores::configurar(int mm1_a,int mm1_b,int  mm1_pwm,int  mm2_a,int  mm2_b,
 
 void Motores::girar(int intensidade, int sentido1) {
   noInterrupts();
-  analogWrite(m1_pwm,intensidade*50);
   analogWrite(m2_pwm,intensidade*50);
+  if(independente==1) analogWrite(m1_pwm,intensidade*50);
   digitalWrite(m1_a,sentido1);
   digitalWrite(m1_b,!sentido1);
   digitalWrite(m2_a,!sentido1);
@@ -40,87 +41,70 @@ void Motores::girar(int intensidade, int sentido1) {
 void Motores::girar(int intensidade) {
   noInterrupts();
   int sentido1=random(0,2);
-  analogWrite(m1_pwm,intensidade*50);
-  analogWrite(m2_pwm,intensidade*50);
-  digitalWrite(m1_a,sentido1);
-  digitalWrite(m1_b,!sentido1);
-  digitalWrite(m2_a,!sentido1);
-  digitalWrite(m2_b,sentido1);
+  girar(intensidade, sentido1);
   interrupts();
 }
 void  Motores::parar() {  
   noInterrupts();
-  analogWrite(m1_pwm,0 );
+  analogWrite(m1_pwm,0);
   analogWrite(m2_pwm,0);
   interrupts();
 }
-
-void  Motores::frente(int intensidade) {
+void Motores::frente_re(int intensidade, int sentido) {
   noInterrupts();
-  sentido = 1;
   analogWrite(m1_pwm,intensidade*50);
-  analogWrite(m2_pwm,intensidade*50);
+  if(independente==1) analogWrite(m2_pwm,intensidade*50);
+  else analogWrite(m2_pwm,0);
   digitalWrite(m1_a,sentido);
   digitalWrite(m1_b,!sentido);
   digitalWrite(m2_a,sentido);
   digitalWrite(m2_b,!sentido);
   interrupts();
+
 }
-void  Motores::re(int intensidade) {
-  noInterrupts();
-  sentido = 0;
-  analogWrite(m1_pwm,intensidade*50 );
-  analogWrite(m2_pwm,intensidade*50);
-  digitalWrite(m1_a,sentido);
-  digitalWrite(m1_b,!sentido);
-  digitalWrite(m2_a,sentido);
-  digitalWrite(m2_b,!sentido);
-  interrupts();
+
+void Motores::frente(int intensidade) {
+  frente_re(intensidade, 0);
 }
-void  Motores::esquerda(int intensidade) {
+
+void Motores::re(int intensidade) {
+  frente_re(intensidade, 1);
+}
+
+void Motores::lados(int intensidade, int lado, int sentido) {
   noInterrupts();
-  analogWrite(m1_pwm,intensidade*50 );
-  analogWrite(m2_pwm,10*intensidade);
+  analogWrite(m1_pwm,lado==0 ? intensidade*50 : 35*intensidade);
+  if(independente==1) analogWrite(m2_pwm,lado==0 ? 35*intensidade : 50*intensidade);
+  else analogWrite(m2_pwm,50*intensidade);
   digitalWrite(m1_a,sentido);
   digitalWrite(m1_b,!sentido);
-  digitalWrite(m2_a,sentido);
-  digitalWrite(m2_b,!sentido);
+  if(independente==1) {
+    digitalWrite(m2_a,sentido);
+    digitalWrite(m2_b,!sentido);
+  }
+  else {
+    digitalWrite(m2_a,lado==0 ?  !sentido : sentido);
+    digitalWrite(m2_b,lado==0 ?  sentido : !sentido);
+  }
   interrupts();
+
+}
+void Motores::esquerda(int intensidade) {
+  lados(intensidade,0,0);
 
 }
 void  Motores::direita(int intensidade) {
-  noInterrupts();
-  analogWrite(m1_pwm,10*intensidade );
-  analogWrite(m2_pwm,intensidade*50);
-  digitalWrite(m1_a,sentido);
-  digitalWrite(m1_b,!sentido);
-  digitalWrite(m2_a,sentido);
-  digitalWrite(m2_b,!sentido);
-  interrupts();
+  lados(intensidade,1,0);
 
 }
 
 void  Motores::reEsquerda(int intensidade) {
-  noInterrupts();
-  analogWrite(m1_pwm,intensidade*50 );
-  analogWrite(m2_pwm,10*intensidade);
-  digitalWrite(m1_a,!sentido);
-  digitalWrite(m1_b,sentido);
-  digitalWrite(m2_a,!sentido);
-  digitalWrite(m2_b,sentido);
-  interrupts();
-
+  lados(intensidade,0,1);
 
 }
+
 void  Motores::reDireita(int intensidade) {
-  noInterrupts();
-  analogWrite(m1_pwm,10*intensidade );
-  analogWrite(m2_pwm,intensidade*50);
-  digitalWrite(m1_a,!sentido);
-  digitalWrite(m1_b,sentido);
-  digitalWrite(m2_a,!sentido);
-  digitalWrite(m2_b,sentido);
-  interrupts();
+  lados(intensidade,1,1);
 
 }
 

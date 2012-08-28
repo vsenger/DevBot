@@ -1,5 +1,7 @@
 #include <DevBot.h>
 #include <Servo.h>
+
+
 #ifndef WIRING_H
   #include <Arduino.h>
 #endif
@@ -47,11 +49,15 @@ void mudarModoPeloBotao() {
   if(millis()-lastDebounce>debounceDelay && ntime++>=100) {
     robot.ultimoModo=robot.modoAtual;
     robot.modoAtual = robot.modoAtual==robot.contadorModos-1 ? 0 : robot.modoAtual + 1;
-    //robot.motores.parar();
+    //robot.robot.motores.parar();
     ntime=0;
+    robot.modoMudou=1;
+
     lastDebounce=millis();
   }
 }
+
+
 long DevBot::sensorLuz() {
   return analogRead(portas.sensorLuz);
 }
@@ -72,11 +78,13 @@ void DevBot::mudarServo(int posicao) {
   servo.write(posicao);
   delay(250);
 }
+
 DevBot::DevBot() {
   modoAtual=0;
   contadorModos=0;
   ultimoModo=0;
   pinMode(portas.sensorDistancia1, OUTPUT);
+
   //para modelo não parallax
   //pinMode(portaSensorDistancia+1, INPUT);
   
@@ -94,11 +102,11 @@ void DevBot::loop() {
     robot.motores.parar();
     ultimoModo = modoAtual;
     beep(modoAtual+1);
-    modoMudou=1;
+    //modoMudou=1;
     modos[modoAtual].configurar();
   }
-  modos[modoAtual].executar();
   modoMudou=0;
+  modos[modoAtual].executar();
   //controle de servo manualmente
 
 }
@@ -199,7 +207,7 @@ void DevBot::configurar(Placa b) {
     portas.sensorTemperatura=2;
     portas.sensorDistancia1=(temServo ? 10 : 3);
     portas.speaker=4;  
-    motores.configurar(portas.motor1A,  
+    robot.motores.configurar(1, portas.motor1A,  
                        portas.motor1B,
 	               portas.motor1PWM,
                        portas.motor2A,  
@@ -209,7 +217,7 @@ void DevBot::configurar(Placa b) {
 }
 void DevBot::configurar(Portas p) {
   portas = p;
-  motores.configurar(portas.motor1A,  
+  robot.motores.configurar(1, portas.motor1A,  
                      portas.motor1B,
                      portas.motor1PWM,
                      portas.motor2A,  
@@ -228,7 +236,7 @@ void DevBot::configurar(Servos servo) {
   if(placa==programME_v2) {
     portas.motor1PWM=3;
     portas.sensorDistancia1=10;
-    motores.configurar(portas.motor1A,  
+    robot.motores.configurar(1, portas.motor1A,  
                      portas.motor1B,
                      portas.motor1PWM,
                      portas.motor2A,  
@@ -270,37 +278,37 @@ void DevBot::controleRemoto() {
 
   
   if(strcmp("frente",command1)==0 || strcmp("fr",command1)==0 ) {
-    motores.frente(atoi(parameter1));
+    robot.motores.frente(atoi(parameter1));
   }
   else if(strcmp("re",command1)==0 || strcmp("ré",command1)==0 ) {
-    motores.re(atoi(parameter1));
+    robot.motores.re(atoi(parameter1));
   }
   else if(strcmp("parar",command1)==0 || strcmp("pa",command1)==0 ) {
-    motores.parar();
+    robot.motores.parar();
   }
   else if(strcmp("esquerda",command1)==0 || strcmp("fe",command1)==0 ) {
-    motores.esquerda(atoi(parameter1));
+    robot.motores.esquerda(atoi(parameter1));
   }
   else if(strcmp("direita",command1)==0 || strcmp("fd",command1)==0 ) {
-    motores.direita(atoi(parameter1));
+    robot.motores.direita(atoi(parameter1));
   }
   else if(strcmp("reEsquerda",command1)==0 || strcmp("re",command1)==0 ) {
-    motores.reEsquerda(atoi(parameter1));
+    robot.motores.reEsquerda(atoi(parameter1));
   }
   else if(strcmp("reDireita",command1)==0 || strcmp("rd",command1)==0 ) {
-    motores.reDireita(atoi(parameter1));
+    robot.motores.reDireita(atoi(parameter1));
   }
   else if(strcmp("girar",command1)==0) { //aleatorio horário ou anti-horário
-    motores.girar(atoi(parameter1));
+    robot.motores.girar(atoi(parameter1));
   }
-  else if(strcmp("girarHorario",command1)==0 || strcmp("gh",command1)==0 ) { //aleatorio horário ou anti-horário
-    motores.girar(atoi(parameter1),0);
+  else if(strcmp("girarH",command1)==0 || strcmp("gh",command1)==0 ) { //aleatorio horário ou anti-horário
+    robot.motores.girar(atoi(parameter1),0);
   }
-  else if(strcmp("girarAntiHorario",command1)==0 || strcmp("ga",command1)==0 ) { //aleatorio horário ou anti-horário
-    motores.girar(atoi(parameter1),1);
+  else if(strcmp("girarAH",command1)==0 || strcmp("ga",command1)==0 ) { //aleatorio horário ou anti-horário
+    robot.motores.girar(atoi(parameter1),1);
   }
   else if(strcmp("aleatorio",command1)==0) { //aleatorio horário ou anti-horário
-    motores.movimentoAleatorio(atoi(parameter1));
+    robot.motores.movimentoAleatorio(atoi(parameter1));
   }
   else if(strcmp("sl",command1)==0) {
      Serial.print("l?");
@@ -319,13 +327,12 @@ void DevBot::controleRemoto() {
   }
   else if(strcmp("servo",command1)==0) {
      mudarServo(atoi(parameter1));     
-  }
-  
-
+  } 
 //38321548 
 //38343200vigilancia sana
 
 
 }
+
 
 

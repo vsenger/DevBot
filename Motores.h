@@ -3,10 +3,12 @@ class Motores {
   private:
 
   public:
+    int independente;
     int m1_a, m1_b, m1_pwm, m2_a, m2_b, m2_pwm;
     Motores();
-    Motores(int, int, int, int, int, int);
-    void configurar(int, int, int, int, int, int);
+
+    Motores(int, int, int, int, int, int, int);
+    void configurar(int, int, int, int, int, int, int);
     void girar(int intensidade);
 
     void girar(int intensidade, int sentido);
@@ -18,6 +20,8 @@ class Motores {
     void reEsquerda(int intensidade);
     void reDireita(int intensidade);
     void movimentoAleatorio(int intensidade);
+    void lados(int, int, int);
+    void frente_re(int, int);
 };
 
 
