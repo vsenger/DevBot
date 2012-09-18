@@ -1,9 +1,8 @@
 package br.com.devbot.core;
 
-import br.com.devbot.core.MainMidlet;
 import br.com.devbot.features.DriveForm;
-import br.com.devbot.features.ServoForm;
 import br.com.devbot.features.LightForm;
+import br.com.devbot.features.ServoForm;
 import br.com.devbot.features.TempForm;
 import com.sun.lwuit.Button;
 import com.sun.lwuit.Command;
