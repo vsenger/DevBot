@@ -46,7 +46,6 @@ public class BluetoothClientServer implements DiscoveryListener {
         if (instance == null) {
             instance = new BluetoothClientServer();
         }
-
         return instance;
     }
 
