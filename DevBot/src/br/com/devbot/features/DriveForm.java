@@ -25,6 +25,7 @@ public class DriveForm extends FeatureForm {
     private final int DOWN_KEY = -2;
     private final int LEFT_KEY = -3;
     private final int RIGHT_KEY = -4;
+    private final int STOP_KEY = -5;
 
     public DriveForm(MainForm previousScreen) {
         super(previousScreen, "Drive");
@@ -124,6 +125,11 @@ public class DriveForm extends FeatureForm {
                     System.out.println("Image not found");
                 }
                 System.out.println("DIREITA");
+                break;
+            case STOP_KEY:
+                setHeaderCode("parar");
+                sendMessage("");
+                resetLabels();
                 break;
         }
 //        try {
