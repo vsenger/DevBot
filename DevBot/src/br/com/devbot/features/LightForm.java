@@ -29,7 +29,8 @@ public class LightForm extends FeatureForm {
         lightButton.setTextPosition(Label.BOTTOM);
         lightButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                sendMessage("");
+                lightButton.setText(sendAndReceiveMessage("sl"));
+                
             }
         });
         this.addComponent(BorderLayout.CENTER, lightButton);

@@ -5,6 +5,7 @@ import br.com.devbot.core.MainForm;
 import com.sun.lwuit.Command;
 import com.sun.lwuit.Form;
 import com.sun.lwuit.events.ActionEvent;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 /*
@@ -44,6 +45,21 @@ public abstract class FeatureForm extends Form {
         }
         BluetoothClientServer.getInstance().sendMessage(bous.toByteArray());
         System.out.println(message);
+    }
+    
+    public String sendAndReceiveMessage(String message) {
+        message = headerCode + message;
+        ByteArrayOutputStream bous = new ByteArrayOutputStream();
+        for (int i = 0; i < message.length(); i++) {
+            bous.write((int) message.charAt(i));
+        }
+        BluetoothClientServer.getInstance().sendMessage(bous.toByteArray());
+        try {
+            Thread.sleep(20);
+        } catch (Exception ex) {
+        }
+        String rcvd = BluetoothClientServer.getInstance().recieveMessages();
+        return rcvd;
     }
 
     public String getHeaderCode() {

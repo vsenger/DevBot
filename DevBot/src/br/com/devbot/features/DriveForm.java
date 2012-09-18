@@ -91,7 +91,6 @@ public class DriveForm extends FeatureForm {
                 } catch (IOException ex) {
                     System.out.println("Image not found");
                 }
-                System.out.println("CIMA");
                 break;
             case DOWN_KEY:
                 setHeaderCode("re?");
@@ -102,7 +101,6 @@ public class DriveForm extends FeatureForm {
                 } catch (IOException ex) {
                     System.out.println("Image not found");
                 }
-                System.out.println("BAIXO");
                 break;
             case LEFT_KEY:
                 setHeaderCode("ga?");
@@ -113,7 +111,6 @@ public class DriveForm extends FeatureForm {
                 } catch (IOException ex) {
                     System.out.println("Image not found");
                 }
-                System.out.println("ESQUERDA");
                 break;
             case RIGHT_KEY:
                 setHeaderCode("gh?");
@@ -124,7 +121,6 @@ public class DriveForm extends FeatureForm {
                 } catch (IOException ex) {
                     System.out.println("Image not found");
                 }
-                System.out.println("DIREITA");
                 break;
             case STOP_KEY:
                 setHeaderCode("parar");
@@ -132,11 +128,6 @@ public class DriveForm extends FeatureForm {
                 resetLabels();
                 break;
         }
-//        try {
-//            Thread.sleep(1000);
-//        } catch (Exception ex) {
-//            System.out.println("42");
-//        }
     }
 
     public void resetLabels() {

@@ -79,7 +79,7 @@ public class BluetoothClientServer implements DiscoveryListener {
         }
     }
 
-    public String RecieveMessages() {
+    public String recieveMessages() {
         byte[] data = null;
 
         try {
