@@ -96,8 +96,7 @@ public class BluetoothClientServer implements DiscoveryListener {
                 length += ch;
             }
         } catch (IOException e) {
-            System.err.println(e);
-//            MainForm.updateConnectionStatus("Error receiving messages!");
+            MainForm.getInstance().updateStatus("Reading exception");
         }
 
         return new String(data);
