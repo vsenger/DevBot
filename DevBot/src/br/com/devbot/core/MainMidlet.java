@@ -25,7 +25,7 @@ public class MainMidlet extends MIDlet {
     public void startApp() {
          if ( instance == null )
             instance = this;
-         centralMacAddress  = "000666434582";
+         centralMacAddress  = "001107210524";
         Display.init(this);
         try {
             Resources r = Resources.open("/devbot.res");

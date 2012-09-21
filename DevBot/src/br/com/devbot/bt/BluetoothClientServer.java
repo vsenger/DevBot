@@ -3,11 +3,13 @@ package br.com.devbot.bt;
 import br.com.devbot.core.MainForm;
 import br.com.devbot.core.MainMidlet;
 import com.sun.lwuit.Label;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DeviceClass;
@@ -25,6 +27,7 @@ import javax.microedition.io.StreamConnection;
  * @author Neto Marin
  */
 public class BluetoothClientServer implements DiscoveryListener {
+
     UUID RFCOMM_UUID = new UUID(0x1101);
     private StreamConnection streamConn = null;
     private LocalDevice localDevice = null;
@@ -36,7 +39,6 @@ public class BluetoothClientServer implements DiscoveryListener {
     private RemoteDevice remoteDevice;
     private Vector services;
     private static BluetoothClientServer instance;
-
     private boolean connected = false;
 
     private BluetoothClientServer() {
@@ -96,17 +98,18 @@ public class BluetoothClientServer implements DiscoveryListener {
                 length += ch;
             }
         } catch (IOException e) {
-            MainForm.getInstance().updateStatus("Reading exception");
+            return "-1";
         }
-
         return new String(data);
     }
 
-    /*********************************************************************************************
-     * below are the pure virtual  methods of discoverlistern
+    /**
+     * *******************************************************************************************
+     * below are the pure virtual methods of discoverlistern
      *
      *
-     *******************************************************************************************/
+     ******************************************************************************************
+     */
     //Called when device is found during inquiry
     public void deviceDiscovered(RemoteDevice btDevice, DeviceClass cod) {
         try {
@@ -125,10 +128,10 @@ public class BluetoothClientServer implements DiscoveryListener {
     }
 
     public void inquiryCompleted(int discType) {
-        if ( remoteDevice != null ) {
+        if (remoteDevice != null) {
             services = new Vector();
             UUID[] query = new UUID[1];
-	    query[0] = RFCOMM_UUID;
+            query[0] = RFCOMM_UUID;
             try {
                 discoveryAgent.searchServices(null, query, remoteDevice, this);
             } catch (BluetoothStateException ex) {
@@ -139,24 +142,23 @@ public class BluetoothClientServer implements DiscoveryListener {
         }
     }
 
-    
-
     //called when service found during service search
     public void servicesDiscovered(int transID, ServiceRecord[] records) {
         MainForm.getInstance().updateStatus("Looking for RFCOMM channel!");
-        for(int i = 0; i < records.length; i++)
-	    this.services.addElement(records[i]);
+        for (int i = 0; i < records.length; i++) {
+            this.services.addElement(records[i]);
+        }
         MainForm.getInstance().updateStatus("Service search completed!");
     }
 
     //called when service search gets complete
     public void serviceSearchCompleted(int transID, int respCode) {
         MainForm.getInstance().updateStatus("callback serviceSearchCompleted");
-        if ( remoteDevice != null) {
+        if (remoteDevice != null) {
             try {
                 MainForm.getInstance().updateStatus("Starting connection...");
                 //lets the communication start by setting the url and send client reponse
-                streamConn = (StreamConnection)Connector.open(((ServiceRecord)(services.elementAt(0))).getConnectionURL(0, false));
+                streamConn = (StreamConnection) Connector.open(((ServiceRecord) (services.elementAt(0))).getConnectionURL(0, false));
                 MainForm.getInstance().updateStatus("Opening communication...");
                 os = streamConn.openOutputStream();
                 osw = new OutputStreamWriter(os, "US-ASCII");
@@ -164,9 +166,10 @@ public class BluetoothClientServer implements DiscoveryListener {
                 isr = new InputStreamReader(is, "US-ASCII");
 
                 this.connected = true;
-                
+
                 MainForm.getInstance().updateStatus("Connection Stablished!");
                 MainForm.getInstance().updateStatus("Devbot Java ME");
+                //MainForm.getInstance().setEnabled(true);
                 //NESTE PONTO, CONEXAO ESTA OK
             } catch (IOException ex) {
                 MainForm.getInstance().updateStatus("Connection error!!");

@@ -116,6 +116,7 @@ public class MainForm extends Form {
             }
         };
         addCommand(exitComm);
+        //setEnabled(false);
     }
 
     public MainForm getMyself() {

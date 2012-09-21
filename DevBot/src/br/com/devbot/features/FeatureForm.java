@@ -54,10 +54,7 @@ public abstract class FeatureForm extends Form {
             bous.write((int) message.charAt(i));
         }
         BluetoothClientServer.getInstance().sendMessage(bous.toByteArray());
-        try {
-            Thread.sleep(20);
-        } catch (Exception ex) {
-        }
+        
         String rcvd = BluetoothClientServer.getInstance().recieveMessages();
         return rcvd;
     }
