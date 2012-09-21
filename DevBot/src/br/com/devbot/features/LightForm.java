@@ -29,11 +29,15 @@ public class LightForm extends FeatureForm {
         lightButton.setTextPosition(Label.BOTTOM);
         lightButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ae) {
-                String rcvd = sendAndReceiveMessage("sl");
-                rcvd = rcvd.substring(rcvd.length()-5, rcvd.length()-1);
-                lightButton.setText(rcvd);
+                updateLight();
             }
         });
         this.addComponent(BorderLayout.CENTER, lightButton);
+    }
+    
+    public void updateLight(){
+        String rcvd = sendAndReceiveMessage("sl");
+                rcvd = rcvd.substring(rcvd.length()-5, rcvd.length()-1);
+                lightButton.setText(rcvd);
     }
 }
