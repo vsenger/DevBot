@@ -3,13 +3,11 @@ package br.com.devbot.bt;
 import br.com.devbot.core.MainForm;
 import br.com.devbot.core.MainMidlet;
 import com.sun.lwuit.Label;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.Vector;
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DeviceClass;
@@ -82,25 +80,34 @@ public class BluetoothClientServer implements DiscoveryListener {
     }
 
     public String recieveMessages() {
-        byte[] data = null;
-
+        byte buffer[] = new byte[80];
+        int bytes_read;
         try {
-            int length = is.read();
-            data = new byte[length];
-            length = 0;
-
-            while (length != data.length) {
-                int ch = is.read(data, length, data.length - length);
-
-                if (ch == -1) {
-                    throw new IOException("Can't read data");
-                }
-                length += ch;
-            }
-        } catch (IOException e) {
-            return "-1";
+            bytes_read = is.read( buffer );
+        } catch (IOException ex) {
+            return "error";
         }
-        return new String(data);
+        return new String(buffer, 0, bytes_read);
+        
+////        byte[] data = null;
+////
+////        try {
+////            int length = is.read();
+////            data = new byte[length];
+////            length = 0;
+////
+////            while (length != data.length) {
+////                int ch = is.read(data, length, data.length - length);
+////
+////                if (ch == -1) {
+////                    throw new IOException("Can't read data");
+////                }
+////                length += ch;
+////            }
+////        } catch (IOException e) {
+////            return "-1";
+////        }
+////        return new String(data);
     }
 
     /**
