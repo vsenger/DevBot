@@ -25,6 +25,11 @@ enum Sensor { sensor_distancia_parallax,
 
 enum Servos {  servo_comum};
 
+struct RGB {
+  int red;
+  int green;
+  int blue;
+};
 struct Portas {
   byte motor1A;
   byte motor1B;
@@ -33,6 +38,10 @@ struct Portas {
   byte motor2B;
   byte motor2PWM;
   byte servo;
+  byte red;
+  byte green;
+  byte blue;
+
   byte sensorLuz;
   byte sensorTemperatura;
   byte sensorDistancia1;
@@ -45,6 +54,7 @@ class DevBot {
 private:
   
 public:
+  RGB estadoRgb;
   Servo servo;
   Portas portas;
   Motores motores;
@@ -52,7 +62,7 @@ public:
   Placa placa;
   Sensor sensor;
   int temServo;
-
+  
   int modoAtual;
   int ultimoModo;
   int contadorModos;
@@ -72,7 +82,8 @@ public:
   byte mudouModo();
   void checarMudancaModo();
   void modo(int numeroModo, void(*modo)());
-  long sensorDistancia1();
+  long sensorDistancia1(); // só para manter compatibilidade
+  long sensorDistancia(int i);
   long sensorLuz();
   long sensorTemperatura();
   void mudarServo(int posicao);
@@ -80,7 +91,7 @@ public:
   void enviar(long);
   void enviar(char);
   void enviar(char*);
-
+  void rgb(int r, int g, int b);
   int recebeuComando(char*);
   void controleRemoto();
   char* receber();

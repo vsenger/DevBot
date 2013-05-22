@@ -1,7 +1,6 @@
 #include <DevBot.h>
 #include <Servo.h>
 
-
 #ifndef WIRING_H
   #include <Arduino.h>
 #endif
@@ -171,7 +170,6 @@ long DevBot::sensorDistancia1() {
   long cm=0;
   if(sensor==sensor_distancia_parallax) {
     pinMode(portas.sensorDistancia1, OUTPUT);
-
     digitalWrite(portas.sensorDistancia1, LOW);
     delayMicroseconds(2);
     digitalWrite(portas.sensorDistancia1, HIGH);
@@ -182,6 +180,32 @@ long DevBot::sensorDistancia1() {
 
     cm = (duration / 29) / 2;
   }
+  return cm;
+}
+
+long DevBot::sensorDistancia(int i) {
+  //COLOCAR IF por Tipo de Sensor e no futuro refatorar
+  long cm=0;
+  int porta = i==1 ? portas.sensorDistancia1 : portas.sensorDistancia2;
+  /*Serial.print("porta1: ");
+  Serial.println(portas.sensorDistancia1);  
+  Serial.print("porta2: ");
+  Serial.println(portas.sensorDistancia2);  
+
+  Serial.print("porta: ");
+  Serial.println(porta);*/  
+//if(sensor==sensor_distancia_parallax) {
+    pinMode(porta , OUTPUT);
+    digitalWrite(porta, LOW);
+    delayMicroseconds(2);
+    digitalWrite(porta, HIGH);
+    delayMicroseconds(5);
+    digitalWrite(porta, LOW);
+    pinMode(porta, INPUT);
+    long duration = pulseIn(porta, HIGH);
+
+    cm = (duration / 29) / 2;
+  //}
   return cm;
 }
 
@@ -205,7 +229,11 @@ void DevBot::configurar(Placa b) {
     portas.servo=6;
     portas.sensorLuz=3;
     portas.sensorTemperatura=2;
-    portas.sensorDistancia1=(temServo ? 10 : 3);
+    portas.sensorDistancia1=14;
+    portas.sensorDistancia2=15;
+    portas.red=5;
+    portas.green=10;
+    portas.blue=9;
     portas.speaker=4;  
     robot.motores.configurar(1, portas.motor1A,  
                        portas.motor1B,
@@ -235,7 +263,7 @@ void DevBot::configurar(Servos servo) {
   //por conta do problema do timer!
   if(placa==programME_v2) {
     portas.motor1PWM=3;
-    portas.sensorDistancia1=10;
+    //portas.sensorDistancia1=10;
     robot.motores.configurar(1, portas.motor1A,  
                      portas.motor1B,
                      portas.motor1PWM,
@@ -271,13 +299,27 @@ char* DevBot::receber() {
   return comando;
 }
 
+void DevBot::rgb(int r, int g, int b) {
+  estadoRgb.red=r;
+  estadoRgb.green=g;
+  estadoRgb.blue=b;
+  analogWrite(portas.red,r);
+  analogWrite(portas.green,g);
+  analogWrite(portas.blue,b);
+}
+
+void discoverySerial() {
+  
+}
 void DevBot::controleRemoto() {
   if(!recebeuDados()) return;
   receber();
   split();
 
-  
-  if(strcmp("frente",command1)==0 || strcmp("fr",command1)==0 ) {
+  if(strcmp("discovery",command1)==0) {
+    discoverySerial();
+  }
+  else if(strcmp("frente",command1)==0 || strcmp("fr",command1)==0 ) {
     robot.motores.frente(atoi(parameter1));
   }
   else if(strcmp("re",command1)==0 || strcmp("ré",command1)==0 ) {
@@ -321,13 +363,32 @@ void DevBot::controleRemoto() {
      Serial.flush();
   }
   else if(strcmp("sd1",command1)==0) {
-     Serial.print("d?");
-     Serial.println(robot.sensorDistancia1());
+     Serial.print("d1?");
+     Serial.println(robot.sensorDistancia(1));
      Serial.flush();
   }
+  else if(strcmp("sd2",command1)==0) {
+     Serial.print("d2?");
+     Serial.println(robot.sensorDistancia(2));
+     Serial.flush();
+  }
+
   else if(strcmp("servo",command1)==0) {
      mudarServo(atoi(parameter1));     
   } 
+  else if(strcmp("red",command1)==0) {
+     estadoRgb.red=atoi(parameter1);
+     rgb(estadoRgb.red, estadoRgb.green, estadoRgb.blue);
+  } 
+  else if(strcmp("green",command1)==0) {
+     estadoRgb.green=atoi(parameter1);
+     rgb(estadoRgb.red, estadoRgb.green, estadoRgb.blue);
+  } 
+  else if(strcmp("blue",command1)==0) {
+     estadoRgb.blue=atoi(parameter1);
+     rgb(estadoRgb.red, estadoRgb.green, estadoRgb.blue);
+  } 
+
 //38321548 
 //38343200vigilancia sana
 
