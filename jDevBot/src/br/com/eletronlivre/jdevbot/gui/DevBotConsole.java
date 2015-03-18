@@ -57,7 +57,7 @@ public class DevBotConsole extends javax.swing.JFrame {
 
         jLabel1.setText("Porta de comunicação");
 
-        textoPorta.setText("/dev/rfcomm3");
+        textoPorta.setText("/dev/rfcomm0");
 
         botaoConectar.setText("Conectar");
         botaoConectar.addActionListener(new java.awt.event.ActionListener() {

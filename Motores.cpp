@@ -24,6 +24,13 @@ void Motores::configurar(int independente1, int mm1_a,int mm1_b,int  mm1_pwm,int
   pinMode(mm1_b, OUTPUT);
   pinMode(mm2_a, OUTPUT);
   pinMode(mm2_b, OUTPUT);
+  digitalWrite(mm1_a, LOW);
+  digitalWrite(mm1_b, LOW);
+  digitalWrite(mm2_a, LOW);
+  digitalWrite(mm2_b, LOW);
+  analogWrite(m1_pwm, 0);
+  analogWrite(m2_pwm, 0);
+  
 }
 
 
@@ -46,6 +53,11 @@ void Motores::girar(int intensidade) {
 }
 void  Motores::parar() {  
   noInterrupts();
+  digitalWrite(m1_a, LOW);
+  digitalWrite(m1_b, LOW);
+  digitalWrite(m2_a, LOW);
+  digitalWrite(m2_b, LOW);
+  
   analogWrite(m1_pwm,0);
   analogWrite(m2_pwm,0);
   interrupts();

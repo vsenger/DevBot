@@ -9,12 +9,76 @@
 
 DevBot robot;
 volatile long lastDebounce=0;
-volatile long debounceDelay=50;
+volatile long debounceDelay=1;
 volatile long ntime=0;
+int lastButtonState=0, buttonState=0;
 char command1[10];
 char parameter1[10];
 
 char comando[16];
+void mudarModoPeloBotao() {
+
+  if(millis()-lastDebounce>debounceDelay && ntime++>=100) {
+    robot.ultimoModo=robot.modoAtual;
+    robot.modoAtual = robot.modoAtual==robot.contadorModos-1 ? 0 : robot.modoAtual + 1;
+    //robot.robot.motores.parar();
+    ntime=0;
+    robot.modoMudou=1;
+
+    lastDebounce=millis();
+  }
+}
+void mudarModoPeloBotaoSync() {
+  int reading = digitalRead(2);
+
+  if (reading != lastButtonState) {
+    lastDebounce = millis();
+      Serial.println(reading);
+      Serial.println(millis() - lastDebounce);
+  } 
+  
+  if ((millis() - lastDebounce) > debounceDelay) {
+    // whatever the reading is at, it's been there for longer
+    // than the debounce delay, so take it as the actual current state:
+
+    // if the button state has changed:
+    if (reading != buttonState) {
+      buttonState = reading;
+      Serial.println("mudooooou");  
+      // only toggle the LED if the new button state is HIGH
+      if (buttonState == HIGH) {
+        robot.ultimoModo=robot.modoAtual;
+        robot.modoAtual = robot.modoAtual==robot.contadorModos-1 ? 0 : robot.modoAtual + 1;
+        //robot.robot.motores.parar();
+        ntime=0;
+        robot.modoMudou=1;
+      }
+    }
+  }
+  lastButtonState = reading;
+}
+void DevBot::loop() {
+  #ifdef ARDUINO_LINUX 
+    mudarModoPeloBotaoSync();
+  #endif
+  if(ultimoModo!=modoAtual) {
+    robot.motores.parar();
+    ultimoModo = modoAtual;
+    beep(modoAtual+1);
+    //modoMudou=1;
+    modos[modoAtual].configurar();
+  }
+  modoMudou=0;
+  modos[modoAtual].executar();
+  //controle de servo manualmente
+
+}
+
+
+
+
+
+
 void limpaComando() {
   for(int x=0;x<15;x++) comando[x]='\0';
   for(int x=0;x<10;x++) {
@@ -44,18 +108,6 @@ void split() {
   } 
 }
 
-void mudarModoPeloBotao() {
-
-  if(millis()-lastDebounce>debounceDelay && ntime++>=100) {
-    robot.ultimoModo=robot.modoAtual;
-    robot.modoAtual = robot.modoAtual==robot.contadorModos-1 ? 0 : robot.modoAtual + 1;
-    //robot.robot.motores.parar();
-    ntime=0;
-    robot.modoMudou=1;
-
-    lastDebounce=millis();
-  }
-}
 
 
 long DevBot::sensorLuz() {
@@ -73,6 +125,7 @@ int DevBot::recebeuComando(char*) {
   return 0;
 }
 void DevBot::mudarServo(int posicao) {
+  if(!temServo) return;
   servo.attach(portas.servo);
   delay(50);
   servo.write(posicao);
@@ -83,6 +136,7 @@ DevBot::DevBot() {
   modoAtual=0;
   contadorModos=0;
   ultimoModo=0;
+  pinMode(2, INPUT);
   pinMode(portas.sensorDistancia1, OUTPUT);
 
   //para modelo não parallax
@@ -90,26 +144,19 @@ DevBot::DevBot() {
   
 }
 void DevBot::iniciar() {
-   attachInterrupt(0, mudarModoPeloBotao, LOW);
+   #ifndef ARDUINO_LINUX
+     attachInterrupt(0, mudarModoPeloBotao, CHANGE);
+   #endif
    /* welcome devbot code */
+      
    Serial.begin(115200);
+   #ifdef ARDUINO_LINUX
+     Serial1.begin(115200);
+   #endif
    pinMode(portas.speaker, OUTPUT);
    beep(1);
 }
 
-void DevBot::loop() { 
-  if(ultimoModo!=modoAtual) {
-    robot.motores.parar();
-    ultimoModo = modoAtual;
-    beep(modoAtual+1);
-    //modoMudou=1;
-    modos[modoAtual].configurar();
-  }
-  modoMudou=0;
-  modos[modoAtual].executar();
-  //controle de servo manualmente
-
-}
 
 void DevBot::beep(int ntime) {
   for(int x=0;x<ntime;x++) {
@@ -128,10 +175,10 @@ void DevBot::modo(int numeroModo, void(*modo1)()) {
 
 void DevBot::checarMudancaModo() {
   /*if(operationMode==0 || operationMode==2) {
-    if(Serial.available()) { 
+    if(Serial1.available()) { 
       byte lido;
       lastMode=mode;
-      lido = Serial.read(); 
+      lido = Serial1.read(); 
       char c=(char) lido;
       mode = atoi(&c);
     }
@@ -153,7 +200,9 @@ void DevBot::esperar(long milis) {
   else {
     for(long x=0;x<milis/10;x++) {
       delay(10);
-      //checarMudancaModo();
+      #ifdef ARDUINO_LINUX 
+        mudarModoPeloBotaoSync();
+      #endif
       if(modoAtual!=ultimoModo) {
         modoMudou=1;
         return;
@@ -205,7 +254,7 @@ void DevBot::configurar(Placa b) {
     portas.servo=6;
     portas.sensorLuz=3;
     portas.sensorTemperatura=2;
-    portas.sensorDistancia1=(temServo ? 10 : 3);
+    portas.sensorDistancia1=(temServo ?     10 : 3);
     portas.speaker=4;  
     robot.motores.configurar(1, portas.motor1A,  
                        portas.motor1B,
@@ -247,28 +296,57 @@ void DevBot::configurar(Servos servo) {
 }
 
 
-void DevBot::enviar(int x) { Serial.println(x);}
-void DevBot::enviar(char x) { Serial.println(x);}
-void DevBot::enviar(long x) { Serial.println(x);}
-void DevBot::enviar(char* x) { Serial.println(x);}
+void DevBot::enviar(int x) { Serial1.println(x);}
+void DevBot::enviar(char x) { Serial1.println(x);}
+void DevBot::enviar(long x) { Serial1.println(x);}
+void DevBot::enviar(char* x) { Serial1.println(x);}
 
 /* 
  * Parte de recepção e envio de dados
  */
 
-int DevBot::recebeuDados() {  return Serial.available();}
+int DevBot::recebeuDados() {
+  #ifdef ARDUINO_LINUX
+    return Serial.available() + Serial1.available();
+  #else 
+    return Serial.available();
+  #endif  
+}
 
 char* DevBot::receber() {
   int counter=0;
   limpaComando();
-  while(Serial.available()>0) // loop through all but the last
-  {
-    char c = Serial.read(); // receive byte as a character
-    delay(1);
-    comando[counter++]=c;
-  }
-  comando[counter]='\0';
-  return comando;
+  #ifdef ARDUINO_LINUX
+    if(Serial1.available()>0) {
+      while(Serial1.available()>0) // loop through all but the last
+      {
+        char c = Serial1.read(); // receive byte as a character
+        delay(1);
+        comando[counter++]=c;
+      }
+      comando[counter]='\0';
+      return comando;
+    }
+    else if(Serial.available()>0) {
+      while(Serial.available()>0) // loop through all but the last
+      {
+        char c = Serial.read(); // receive byte as a character
+        delay(1);
+        comando[counter++]=c;
+      }
+      comando[counter]='\0';
+      return comando;
+    }
+  #else  
+    while(Serial.available()>0) // loop through all but the last
+    {
+      char c = Serial.read(); // receive byte as a character
+      //delay(1);
+      comando[counter++]=c;
+    }
+    comando[counter]='\0';
+    return comando;
+  #endif
 }
 
 void DevBot::controleRemoto() {
@@ -314,16 +392,31 @@ void DevBot::controleRemoto() {
      Serial.print("l?");
      Serial.println(robot.sensorLuz());
      Serial.flush();
+     #ifdef ARDUINO_LINUX     
+       Serial1.print("l?");
+       Serial1.println(robot.sensorLuz());
+       Serial1.flush();
+     #endif
   }
   else if(strcmp("st",command1)==0) {
      Serial.print("t?");
      Serial.println(robot.sensorTemperatura());
      Serial.flush();
+     #ifdef ARDUINO_LINUX     
+       Serial1.print("t?");
+       Serial1.println(robot.sensorTemperatura());
+       Serial1.flush();
+     #endif
   }
   else if(strcmp("sd1",command1)==0) {
      Serial.print("d?");
      Serial.println(robot.sensorDistancia1());
      Serial.flush();
+     #ifdef ARDUINO_LINUX     
+       Serial1.print("d?");
+       Serial1.println(robot.sensorDistancia1());
+       Serial1.flush();
+     #endif
   }
   else if(strcmp("servo",command1)==0) {
      mudarServo(atoi(parameter1));     

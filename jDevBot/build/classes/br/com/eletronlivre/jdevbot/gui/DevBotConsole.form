@@ -106,6 +106,7 @@
   <SyntheticProperties>
     <SyntheticProperty name="menuBar" type="java.lang.String" value="menuBar"/>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+    <SyntheticProperty name="generateCenter" type="boolean" value="false"/>
   </SyntheticProperties>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
@@ -155,7 +156,7 @@
     </Component>
     <Component class="javax.swing.JTextField" name="textoPorta">
       <Properties>
-        <Property name="text" type="java.lang.String" value="/dev/rfcomm3"/>
+        <Property name="text" type="java.lang.String" value="/dev/rfcomm0"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="botaoConectar">
